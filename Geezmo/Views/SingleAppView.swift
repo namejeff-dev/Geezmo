@@ -36,7 +36,7 @@ struct AccentButtonStyle: ButtonStyle {
         VStack {
             TVAppIconView(
                 app: app,
-                size: (UIScreen.main.bounds.width - 200) / 3
+                size: (UIScreen.main.bounds.width - 200) / 3,
                 viewModel: viewModel
             )
             .scaleEffect(configuration.isPressed ? 1.08 : 1.0)
