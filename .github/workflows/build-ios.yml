@@ -52,6 +52,27 @@ jobs:
           </plist>
           EOF
 
+      - name: Remove Watch app dependency
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("Geezmo.xcodeproj/project.pbxproj")
+          s = p.read_text()
+
+          s = s.replace(
+              '\t\t\t\tCA667A872C4918F2007E8F87 /* Embed Watch Content */,\n',
+              ''
+          )
+
+          s = s.replace(
+              '\t\t\t\tCA667A772C4918F1007E8F87 /* PBXTargetDependency */,\n',
+              ''
+          )
+
+          p.write_text(s)
+          PY
+
       - name: Build Geezmo
         run: |
           xcodebuild \
