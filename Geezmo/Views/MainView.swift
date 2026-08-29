@@ -11,6 +11,7 @@ import FirebaseAnalytics
 struct MainView: View {
     @Environment(\.scenePhase) var scenePhase
     @ObservedObject var viewModel: MainViewModel
+    @State private var trackpadMode = false
 
     var body: some View {
         NavigationStack {
@@ -18,8 +19,39 @@ struct MainView: View {
                 VStack {
                     Spacer()
 
-                    TrackpadView(viewModel: viewModel)
-                        .padding(.bottom, 12)
+                    Picker("", selection: $trackpadMode) {
+                        Text("Remote").tag(false)
+                        Text("Trackpad").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    .padding(.bottom, 12)
+                
+                    if trackpadMode {
+                        TrackpadView(viewModel: viewModel)
+                    } else {
+                        if viewModel.preferencesAlternativeView {
+                            if viewModel.colorButtonsPresented {
+                                ButtonGroupColorAlternativeView()
+                                    .environmentObject(viewModel)
+                            } else {
+                                ButtonGroupDefaultAlternativeView()
+                                    .environmentObject(viewModel)
+                            }
+                        } else {
+                            if viewModel.colorButtonsPresented {
+                                ButtonGroupColorView()
+                                    .environmentObject(viewModel)
+                            } else {
+                                ButtonGroupDefaultView()
+                                    .environmentObject(viewModel)
+                            }
+                        }
+                    }
+                
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     if viewModel.preferencesAlternativeView {
                         if viewModel.colorButtonsPresented {
