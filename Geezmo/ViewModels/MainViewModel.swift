@@ -49,21 +49,27 @@ final class MainViewModel: NSObject, ObservableObject {
         }
     }
     @Published var recentAppIds: [String] = {
-    UserDefaults.standard.stringArray(forKey: "recentAppIds") ?? []
+        UserDefaults.standard.stringArray(
+            forKey: "recentAppIds"
+        ) ?? []
     }()
 
     func rememberRecentApp(id: String) {
-    var ids = recentAppIds
+        var ids = recentAppIds
 
-    ids.removeAll { $0 == id }
-    ids.insert(id, at: 0)
+        ids.removeAll { $0 == id }
+        ids.insert(id, at: 0)
 
-    if ids.count > 4 {
-        ids = Array(ids.prefix(4))
-    }
-
-    recentAppIds = ids
-    UserDefaults.standard.set(ids, forKey: "recentAppIds")
+        if ids.count > 4 {
+            ids = Array(ids.prefix(4))
+        }
+    
+        recentAppIds = ids
+    
+        UserDefaults.standard.set(
+            ids,
+            forKey: "recentAppIds"
+        )
     }
     
     @Published
