@@ -14,6 +14,9 @@ struct AppsView: View {
     @ObservedObject var viewModel: MainViewModel
     @State private var animateSymbol: Bool = false
     @State private var searchText = ""
+
+    @State private var debugText = ""
+    @State private var debugShown = false
     
     var filteredApps: [WebOSResponseApplication] {
             if searchText.isEmpty {
