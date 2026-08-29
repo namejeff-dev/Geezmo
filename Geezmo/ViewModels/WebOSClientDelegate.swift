@@ -104,7 +104,23 @@ extension MainViewModel: WebOSClientDelegate {
             return
         }
     
-        print("Launch points received: \(launchPoints.count)")
+        var icons: [String: String] = [:]
+    
+        for launchPoint in launchPoints {
+            guard
+                let appId = launchPoint["id"] as? String,
+                let icon = launchPoint["icon"] as? String,
+                !icon.isEmpty
+            else {
+                continue
+            }
+    
+            icons[appId] = icon
+        }
+    
+        Task { @MainActor in
+            self.appIconPaths = icons
+        }
     }
 
     func didReceiveNetworkError(_ error: Error?) {
