@@ -34,16 +34,11 @@ struct AccentButtonStyle: ButtonStyle {
     @ObservedObject var viewModel: MainViewModel
     func makeBody(configuration: Configuration) -> some View {
         VStack {
-            Circle()
-                .foregroundColor(configuration.isPressed ? .accent : Color(uiColor: .systemGray5))
-                .frame(width: (UIScreen.main.bounds.width - 200) / 3, height: (UIScreen.main.bounds.width - 200) / 3)
-                .scaleEffect(configuration.isPressed ? 3.0 : 1.0)
-                .overlay(
-                    Text(app.title?.toInitials() ?? "N/A")
-                        .font(.system(size: configuration.isPressed ? 36 : 18, weight: .bold, design: .rounded))
-                        .foregroundStyle(configuration.isPressed ? .white : .primary)
-                        .multilineTextAlignment(.center)
-                )
+            TVAppIconView(
+                app: app,
+                size: (UIScreen.main.bounds.width - 200) / 3
+            )
+            .scaleEffect(configuration.isPressed ? 1.08 : 1.0)
             
             Text(app.title ?? "N/A")
                 .font(.system(size: Globals.smallTitleSize, weight: .bold, design: .rounded))
