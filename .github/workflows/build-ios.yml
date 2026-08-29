@@ -73,6 +73,55 @@ jobs:
           p.write_text(s)
           PY
 
+      - name: Create placeholder app icon
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct, zlib
+
+          icon_dir = Path("Geezmo/Assets.xcassets/AppIcon.appiconset")
+          icon_dir.mkdir(parents=True, exist_ok=True)
+
+          # Create a simple opaque 1024x1024 PNG using only Python stdlib.
+          w = h = 1024
+          row = b"\x00" + (b"\x20\x20\x20\xff" * w)
+          raw = row * h
+
+          def chunk(kind, data):
+              return (
+                  struct.pack(">I", len(data))
+                  + kind
+                  + data
+                  + struct.pack(">I", zlib.crc32(kind + data) & 0xffffffff)
+              )
+
+          png = (
+              b"\x89PNG\r\n\x1a\n"
+              + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0))
+              + chunk(b"IDAT", zlib.compress(raw, 9))
+              + chunk(b"IEND", b"")
+          )
+
+          (icon_dir / "AppIcon.png").write_bytes(png)
+
+          (icon_dir / "Contents.json").write_text(r'''
+          {
+            "images" : [
+              {
+                "filename" : "AppIcon.png",
+                "idiom" : "universal",
+                "platform" : "ios",
+                "size" : "1024x1024"
+              }
+            ],
+            "info" : {
+              "author" : "xcode",
+              "version" : 1
+            }
+          }
+          ''')
+          PY
+
       - name: Build Geezmo
         run: |
           xcodebuild \
