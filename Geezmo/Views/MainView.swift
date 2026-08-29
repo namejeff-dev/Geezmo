@@ -197,17 +197,82 @@ struct MainView: View {
 struct TrackpadView: View {
     @ObservedObject var viewModel: MainViewModel
 
+    // Cursor
     @State private var lastTranslation: CGSize = .zero
+
+    // Vertical scroll
     @State private var lastScrollTranslation: CGFloat = 0
     @State private var scrollThumbOffset: CGFloat = 0
+
+    // Horizontal left/right scrubber
     @State private var lastHorizontalScrollTranslation: CGFloat = 0
     @State private var horizontalThumbOffset: CGFloat = 0
 
+    // Recently launched apps
+    private var recentApps: [WebOSResponseApplication] {
+        viewModel.recentAppIds.compactMap { recentId in
+            viewModel.apps.first { $0.id == recentId }
+        }
+    }
+
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 14) {
+
+            // MARK: Recent Apps
+            if !recentApps.isEmpty {
+                HStack(spacing: 10) {
+                    ForEach(recentApps) { app in
+                        Button {
+                            if let id = app.id {
+                                viewModel.launchApp(id: id)
+
+                                if viewModel.preferencesHapticFeedback {
+                                    UIImpactFeedbackGenerator(
+                                        style: .soft
+                                    ).impactOccurred()
+                                }
+                            }
+                        } label: {
+                            VStack(spacing: 5) {
+                                Circle()
+                                    .fill(Color(uiColor: .systemGray5))
+                                    .frame(width: 44, height: 44)
+                                    .overlay {
+                                        Text(app.title?.toInitials() ?? "?")
+                                            .font(
+                                                .system(
+                                                    size: 13,
+                                                    weight: .bold,
+                                                    design: .rounded
+                                                )
+                                            )
+                                            .foregroundStyle(.primary)
+                                    }
+
+                                Text(app.title ?? "App")
+                                    .font(
+                                        .system(
+                                            size: 10,
+                                            weight: .medium,
+                                            design: .rounded
+                                        )
+                                    )
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.65)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+
+            // MARK: Trackpad + Vertical Scroll
             HStack(spacing: 12) {
 
-                // MARK: Trackpad
+                // MARK: Main Trackpad
                 ZStack {
                     RoundedRectangle(cornerRadius: 28)
                         .fill(Color.black.opacity(0.72))
@@ -218,19 +283,23 @@ struct TrackpadView: View {
                             .foregroundStyle(.white.opacity(0.40))
 
                         Text("Trackpad")
-                            .font(.system(
-                                size: 18,
-                                weight: .semibold,
-                                design: .rounded
-                            ))
+                            .font(
+                                .system(
+                                    size: 18,
+                                    weight: .semibold,
+                                    design: .rounded
+                                )
+                            )
                             .foregroundStyle(.white.opacity(0.55))
 
                         Text("Drag to move • Tap to click")
-                            .font(.system(
-                                size: 12,
-                                weight: .medium,
-                                design: .rounded
-                            ))
+                            .font(
+                                .system(
+                                    size: 12,
+                                    weight: .medium,
+                                    design: .rounded
+                                )
+                            )
                             .foregroundStyle(.white.opacity(0.30))
                     }
                 }
@@ -253,7 +322,10 @@ struct TrackpadView: View {
 
                             if moveX != 0 || moveY != 0 {
                                 viewModel.sendKey(
-                                    .move(dx: moveX, dy: moveY)
+                                    .move(
+                                        dx: moveX,
+                                        dy: moveY
+                                    )
                                 )
                             }
 
@@ -279,7 +351,7 @@ struct TrackpadView: View {
                         }
                 )
 
-                // MARK: Scroll strip
+                // MARK: Vertical Scroll
                 RoundedRectangle(cornerRadius: 18)
                     .fill(Color.white.opacity(0.18))
                     .frame(width: 38)
@@ -318,12 +390,16 @@ struct TrackpadView: View {
 
                                 let sensitivity: CGFloat = 6
 
+                                // Reversed direction, as you preferred
                                 let scrollY =
                                     Int(-dy * sensitivity)
 
                                 if scrollY != 0 {
                                     viewModel.sendKey(
-                                        .scroll(dx: 0, dy: scrollY)
+                                        .scroll(
+                                            dx: 0,
+                                            dy: scrollY
+                                        )
                                     )
                                 }
 
@@ -352,9 +428,9 @@ struct TrackpadView: View {
                             }
                     )
             }
-            .frame(height: 280)
-            
-            // MARKL: Horizontal Scroll
+            .frame(height: 260)
+
+            // MARK: Horizontal Left / Right Scrubber
             RoundedRectangle(cornerRadius: 18)
                 .fill(Color.white.opacity(0.18))
                 .frame(maxWidth: 260)
@@ -365,16 +441,20 @@ struct TrackpadView: View {
                         HStack {
                             Image(systemName: "chevron.left")
                                 .font(.caption2)
-                                .foregroundStyle(.white.opacity(0.45))
-            
+                                .foregroundStyle(
+                                    .white.opacity(0.45)
+                                )
+
                             Spacer()
-            
+
                             Image(systemName: "chevron.right")
                                 .font(.caption2)
-                                .foregroundStyle(.white.opacity(0.45))
+                                .foregroundStyle(
+                                    .white.opacity(0.45)
+                                )
                         }
                         .padding(.horizontal, 12)
-            
+
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.black.opacity(0.85))
                             .frame(width: 72, height: 24)
@@ -388,19 +468,34 @@ struct TrackpadView: View {
                             let dx =
                                 value.translation.width -
                                 lastHorizontalScrollTranslation
-                
+
                             let threshold: CGFloat = 25
-                
+
                             if dx >= threshold {
                                 viewModel.sendKey(.right)
+
                                 lastHorizontalScrollTranslation =
                                     value.translation.width
+
+                                if viewModel.preferencesHapticFeedback {
+                                    UIImpactFeedbackGenerator(
+                                        style: .soft
+                                    ).impactOccurred()
+                                }
+
                             } else if dx <= -threshold {
                                 viewModel.sendKey(.left)
+
                                 lastHorizontalScrollTranslation =
                                     value.translation.width
+
+                                if viewModel.preferencesHapticFeedback {
+                                    UIImpactFeedbackGenerator(
+                                        style: .soft
+                                    ).impactOccurred()
+                                }
                             }
-                
+
                             horizontalThumbOffset = max(
                                 -90,
                                 min(
@@ -411,7 +506,7 @@ struct TrackpadView: View {
                         }
                         .onEnded { _ in
                             lastHorizontalScrollTranslation = 0
-                
+
                             withAnimation(
                                 .spring(
                                     response: 0.25,
@@ -423,7 +518,7 @@ struct TrackpadView: View {
                         }
                 )
 
-            // MARK: Bottom buttons
+            // MARK: Bottom Buttons
             HStack(spacing: 16) {
                 trackpadButton(
                     icon: "arrow.uturn.backward",
@@ -448,6 +543,11 @@ struct TrackpadView: View {
             }
         }
         .padding(.horizontal)
+        .onAppear {
+            if viewModel.isConnected && viewModel.apps.isEmpty {
+                viewModel.loadApps()
+            }
+        }
     }
 
     private func trackpadButton(
@@ -471,7 +571,7 @@ struct TrackpadView: View {
                     : Color.secondary
                 )
                 .frame(maxWidth: .infinity)
-                .frame(height: 64)
+                .frame(height: 58)
                 .background(
                     RoundedRectangle(cornerRadius: 22)
                         .fill(Color.black.opacity(0.72))
