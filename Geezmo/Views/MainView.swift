@@ -234,20 +234,10 @@ struct TrackpadView: View {
                             }
                         } label: {
                             VStack(spacing: 5) {
-                                Circle()
-                                    .fill(Color(uiColor: .systemGray5))
-                                    .frame(width: 44, height: 44)
-                                    .overlay {
-                                        Text(app.title?.toInitials() ?? "?")
-                                            .font(
-                                                .system(
-                                                    size: 13,
-                                                    weight: .bold,
-                                                    design: .rounded
-                                                )
-                                            )
-                                            .foregroundStyle(.primary)
-                                    }
+                                TVAppIconView(
+                                    app: app,
+                                    size: 44
+                                )
 
                                 Text(app.title ?? "App")
                                     .font(
