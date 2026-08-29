@@ -98,7 +98,29 @@ struct AppsView: View {
             }
             .onAppear {
                 viewModel.loadApps()
-                Analytics.logEvent(AnalyticsEvents.AppsView.appsViewStarted.rawValue, parameters: nil)
+            
+                Analytics.logEvent(
+                    AnalyticsEvents.AppsView.appsViewStarted.rawValue,
+                    parameters: nil
+                )
+            
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    if let firstApp = viewModel.apps.first {
+                        let mirror = Mirror(reflecting: firstApp)
+            
+                        debugText = mirror.children.map { child in
+                            "\(child.label ?? "unknown"): \(String(describing: child.value))"
+                        }
+                        .joined(separator: "\n")
+            
+                        debugShown = true
+                    }
+                }
+            }
+            .alert("App Debug", isPresented: $debugShown) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(debugText)
             }
         }
     }
