@@ -97,6 +97,7 @@ extension MainViewModel {
     }
     
     func launchApp(id: String) {
+        rememberRecentApp(id: id)
         send(.launchApp(appId: id, contentId: nil, params: nil))
         appListPresented = false
     }
