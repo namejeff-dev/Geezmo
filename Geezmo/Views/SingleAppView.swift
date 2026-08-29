@@ -64,3 +64,66 @@ struct AccentButtonStyle: ButtonStyle {
         }
     }
 }
+final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
+    @Published var image: UIImage?
+
+    private lazy var session: URLSession = {
+        URLSession(
+            configuration: .default,
+            delegate: self,
+            delegateQueue: nil
+        )
+    }()
+
+    func load(from urlString: String?) {
+        guard
+            let urlString,
+            let url = URL(string: urlString)
+        else {
+            return
+        }
+
+        session.dataTask(with: url) { [weak self] data, _, _ in
+            guard
+                let data,
+                let image = UIImage(data: data)
+            else {
+                return
+            }
+
+            Task { @MainActor in
+                self?.image = image
+            }
+        }
+        .resume()
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (
+            URLSession.AuthChallengeDisposition,
+            URLCredential?
+        ) -> Void
+    ) {
+        guard
+            challenge.protectionSpace.authenticationMethod ==
+                NSURLAuthenticationMethodServerTrust,
+            let serverTrust =
+                challenge.protectionSpace.serverTrust,
+            challenge.protectionSpace.host ==
+                AppSettings.shared.host
+        else {
+            completionHandler(
+                .performDefaultHandling,
+                nil
+            )
+            return
+        }
+
+        completionHandler(
+            .useCredential,
+            URLCredential(trust: serverTrust)
+        )
+    }
+}
