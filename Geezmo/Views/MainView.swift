@@ -41,6 +41,7 @@ struct MainView: View {
                                         TVAppIconView(
                                             app: app,
                                             size: 44
+                                            viewModel: viewModel
                                         )
                     
                                         Text(app.title ?? "App")
