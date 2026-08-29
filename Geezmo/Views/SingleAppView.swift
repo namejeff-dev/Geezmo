@@ -127,3 +127,40 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
         )
     }
 }
+struct TVAppIconView: View {
+    let app: WebOSResponseApplication
+    let size: CGFloat
+
+    @StateObject private var loader = TVAppIconLoader()
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.22)
+                .fill(Color(uiColor: .systemGray5))
+
+            if let image = loader.image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(size * 0.08)
+            } else {
+                Text(app.title?.toInitials() ?? "?")
+                    .font(
+                        .system(
+                            size: size * 0.30,
+                            weight: .bold,
+                            design: .rounded
+                        )
+                    )
+                    .foregroundStyle(.primary)
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(
+            RoundedRectangle(cornerRadius: size * 0.22)
+        )
+        .onAppear {
+            loader.load(from: app.icon)
+        }
+    }
+}
