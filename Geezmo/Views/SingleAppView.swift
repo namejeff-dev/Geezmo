@@ -93,8 +93,6 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
                 return
             }
 
-            // LG TVs commonly expose the same resource service
-            // over plain HTTP on port 3000.
             components.scheme = "http"
             components.port = 3000
 
@@ -102,7 +100,7 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
                 return
             }
 
-            self?.loadURL(fallbackURL, completion: { _ in })
+            self?.loadURL(fallbackURL) { _ in }
         }
     }
 
@@ -141,10 +139,8 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
         guard
             challenge.protectionSpace.authenticationMethod ==
                 NSURLAuthenticationMethodServerTrust,
-            let serverTrust =
-                challenge.protectionSpace.serverTrust,
-            challenge.protectionSpace.host ==
-                AppSettings.shared.host
+            let serverTrust = challenge.protectionSpace.serverTrust,
+            challenge.protectionSpace.host == AppSettings.shared.host
         else {
             completionHandler(.performDefaultHandling, nil)
             return
@@ -154,5 +150,43 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
             .useCredential,
             URLCredential(trust: serverTrust)
         )
+    }
+}
+
+struct TVAppIconView: View {
+    let app: WebOSResponseApplication
+    let size: CGFloat
+
+    @StateObject private var loader = TVAppIconLoader()
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.22)
+                .fill(Color(uiColor: .systemGray5))
+
+            if let image = loader.image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(size * 0.08)
+            } else {
+                Text(app.title?.toInitials() ?? "?")
+                    .font(
+                        .system(
+                            size: size * 0.30,
+                            weight: .bold,
+                            design: .rounded
+                        )
+                    )
+                    .foregroundStyle(.primary)
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(
+            RoundedRectangle(cornerRadius: size * 0.22)
+        )
+        .onAppear {
+            loader.load(from: app.icon)
+        }
     }
 }
