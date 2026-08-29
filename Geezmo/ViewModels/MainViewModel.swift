@@ -54,6 +54,8 @@ final class MainViewModel: NSObject, ObservableObject {
         ) ?? []
     }()
 
+    @Published var appIconPaths: [String: String] = [:]
+
     func rememberRecentApp(id: String) {
         var ids = recentAppIds
 
