@@ -73,6 +73,27 @@ extension MainViewModel: WebOSClientDelegate {
             guard let applications = response.payload?.applications else {
                 return
             }
+
+            if let firstApp = applications.first {
+                let mirror = Mirror(reflecting: firstApp)
+        
+                let fields = mirror.children.map { child in
+                    "\(child.label ?? "unknown"): \(String(describing: child.value))"
+                }
+                .joined(separator: "\n")
+        
+                Task { @MainActor in
+                    alert(
+                        AlertConfiguration(
+                            title: "App Debug",
+                            message: fields,
+                            primaryButton: .default(Text("OK")),
+                            secondaryButton: nil
+                        )
+                    )
+                }
+            }
+               
             Task { @MainActor in
                 apps = applications.filter { !($0.systemApp ?? false) }
                 apps.append(contentsOf: applications.filter { $0.folderPath?.contains("com.webos.app.browser") ?? false })
