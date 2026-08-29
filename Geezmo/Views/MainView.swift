@@ -376,7 +376,7 @@ struct TrackpadView: View {
                                     value.translation.height -
                                     lastScrollTranslation
 
-                                let sensitivity: CGFloat = 6
+                                let sensitivity: CGFloat = 3.5
 
                                 // Reversed direction, as you preferred
                                 let scrollY =
