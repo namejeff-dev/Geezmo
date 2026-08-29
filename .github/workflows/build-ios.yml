@@ -122,6 +122,27 @@ jobs:
           ''')
           PY
 
+      - name: Disable Firebase at launch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("Geezmo/GeezmoApp.swift")
+          s = p.read_text()
+
+          s = s.replace("import FirebaseCore\n", "")
+          s = s.replace("import FirebaseAnalytics\n", "")
+
+          s = s.replace(
+              "        FirebaseConfiguration.shared.setLoggerLevel(.min)\n"
+              "        FirebaseApp.configure()\n"
+              "        Analytics.setAnalyticsCollectionEnabled(true)\n",
+              ""
+          )
+
+          p.write_text(s)
+          PY
+
       - name: Build Geezmo
         run: |
           xcodebuild \
