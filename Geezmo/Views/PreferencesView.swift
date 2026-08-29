@@ -14,7 +14,8 @@ struct PreferencesView: View {
     @State private var enterIpAlertShown: Bool = false
     @State private var isClearAlertShown: Bool = false
 
-    @State var tvIP = "192.168."
+    @State var tvIP = AppSettings.shared.host ?? "192.168."
+    @State var tvMAC = AppSettings.shared.mac ?? ""
 
     var body: some View {
         NavigationStack(path: $viewModel.navigationPath) {
@@ -138,17 +139,30 @@ struct PreferencesView: View {
                 }
             )
             .alert(
-                Strings.InputIP.inputIPMessage,
+                "TV Connection",
                 isPresented: $enterIpAlertShown
             ) {
-                TextField(text: $tvIP, prompt: Text(Strings.InputIP.inputIPPrompt), label: {})
+                TextField("TV IP address", text: $tvIP)
                     .keyboardType(.numbersAndPunctuation)
-                Button(Strings.General.save, action: { viewModel.setHostManually(host: tvIP) })
-                Button(Strings.General.cancel, role: .cancel, action: {})
-            }
-            .onAppear {
-                viewModel.navigateToDeviceDiscoveryViewIfNeeded(.fromPreferences)
-                Analytics.logEvent(AnalyticsEvents.PreferencesView.preferencesViewStarted.rawValue, parameters: nil)
+            
+                TextField("TV MAC address", text: $tvMAC)
+                    .textInputAutocapitalization(.characters)
+                    .keyboardType(.asciiCapable)
+            
+                Button("Save") {
+                    viewModel.setHostManually(
+                        host: tvIP,
+                        mac: tvMAC
+                    )
+                }
+            
+                Button(
+                    Strings.General.cancel,
+                    role: .cancel,
+                    action: {}
+                )
+            } message: {
+                Text("Enter the TV's IP and Wi-Fi MAC address.")
             }
         }
     }
