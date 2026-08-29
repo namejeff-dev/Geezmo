@@ -190,13 +190,14 @@ struct TVAppIconView: View {
         .onAppear {
             guard
                 let appId = app.id,
-                let iconPath = viewModel.appIconPaths[appId]
+                let iconPath = viewModel.appIconPaths[appId],
+                let host = AppSettings.shared.host
             else {
                 return
             }
-
+        
             loader.load(
-                from: "http://\(AppSettings.shared.host ?? ""):3000\(iconPath)"
+                from: "http://\(host):8765/icon\(iconPath)"
             )
         }
     }
