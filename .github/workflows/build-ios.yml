@@ -73,38 +73,130 @@ jobs:
           p.write_text(s)
           PY
 
-      - name: Create placeholder app icon
+      - name: Create Geezmo app icon
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import struct, zlib
+          mkdir -p Geezmo/Assets.xcassets/AppIcon.appiconset
 
-          icon_dir = Path("Geezmo/Assets.xcassets/AppIcon.appiconset")
-          icon_dir.mkdir(parents=True, exist_ok=True)
+          cat > /tmp/make_icon.swift <<'SWIFT'
+          import AppKit
 
-          # Create a simple opaque 1024x1024 PNG using only Python stdlib.
-          w = h = 1024
-          row = b"\x00" + (b"\x20\x20\x20\xff" * w)
-          raw = row * h
+          let size = NSSize(width: 1024, height: 1024)
+          let image = NSImage(size: size)
 
-          def chunk(kind, data):
-              return (
-                  struct.pack(">I", len(data))
-                  + kind
-                  + data
-                  + struct.pack(">I", zlib.crc32(kind + data) & 0xffffffff)
-              )
+          image.lockFocus()
 
-          png = (
-              b"\x89PNG\r\n\x1a\n"
-              + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0))
-              + chunk(b"IDAT", zlib.compress(raw, 9))
-              + chunk(b"IEND", b"")
+          // Pink / magenta background
+          let background = NSColor(
+              calibratedRed: 0.96,
+              green: 0.03,
+              blue: 0.40,
+              alpha: 1.0
           )
 
-          (icon_dir / "AppIcon.png").write_bytes(png)
+          background.setFill()
+          NSBezierPath(
+              rect: NSRect(
+                  x: 0,
+                  y: 0,
+                  width: 1024,
+                  height: 1024
+              )
+          ).fill()
 
-          (icon_dir / "Contents.json").write_text(r'''
+          // Remote body
+          let remoteRect = NSRect(
+              x: 312,
+              y: 160,
+              width: 400,
+              height: 704
+          )
+
+          let remote = NSBezierPath(
+              roundedRect: remoteRect,
+              xRadius: 100,
+              yRadius: 100
+          )
+
+          NSColor.white.setFill()
+          remote.fill()
+
+          // Main navigation ring
+          let ringOuter = NSBezierPath(
+              ovalIn: NSRect(
+                  x: 382,
+                  y: 450,
+                  width: 260,
+                  height: 260
+              )
+          )
+
+          background.setFill()
+          ringOuter.fill()
+
+          let ringInner = NSBezierPath(
+              ovalIn: NSRect(
+                  x: 442,
+                  y: 510,
+                  width: 140,
+                  height: 140
+              )
+          )
+
+          NSColor.white.setFill()
+          ringInner.fill()
+
+          // Small remote buttons
+          for x in [382.0, 482.0, 582.0] {
+              let button = NSBezierPath(
+                  ovalIn: NSRect(
+                      x: x,
+                      y: 330,
+                      width: 60,
+                      height: 60
+                  )
+              )
+
+              background.setFill()
+              button.fill()
+          }
+
+          // Power symbol circle
+          let powerCircle = NSBezierPath(
+              ovalIn: NSRect(
+                  x: 462,
+                  y: 735,
+                  width: 100,
+                  height: 100
+              )
+          )
+
+          background.setFill()
+          powerCircle.fill()
+
+          image.unlockFocus()
+
+          guard
+              let tiff = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiff),
+              let png = bitmap.representation(
+                  using: .png,
+                  properties: [:]
+              )
+          else {
+              fatalError("Unable to generate icon")
+          }
+
+          try png.write(
+              to: URL(
+                  fileURLWithPath:
+                  "Geezmo/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+              )
+          )
+          SWIFT
+
+          swift /tmp/make_icon.swift
+
+          cat > Geezmo/Assets.xcassets/AppIcon.appiconset/Contents.json <<'EOF'
           {
             "images" : [
               {
@@ -119,8 +211,7 @@ jobs:
               "version" : 1
             }
           }
-          ''')
-          PY
+          EOF
 
       - name: Disable Firebase at launch
         run: |
