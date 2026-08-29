@@ -93,6 +93,20 @@ extension MainViewModel: WebOSClientDelegate {
         }
     }
 
+    func didReceive(jsonResponse: String) {
+        guard
+            let data = jsonResponse.data(using: .utf8),
+            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+            let id = json["id"] as? String,
+            id == Globals.SubscriptionIds.listLaunchPointsRequestId,
+            let launchPoints = json["launchPoints"] as? [[String: Any]]
+        else {
+            return
+        }
+    
+        print("Launch points received: \(launchPoints.count)")
+    }
+
     func didReceiveNetworkError(_ error: Error?) {
         if let error = error as NSError? {
             if error.code == 57 || error.code == 60 || error.code == 54 {
