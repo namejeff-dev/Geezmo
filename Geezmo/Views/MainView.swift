@@ -200,78 +200,97 @@ struct TrackpadView: View {
     @State private var lastScrollTranslation: CGFloat = 0
 
     var body: some View {
-        HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color(uiColor: .secondarySystemBackground))
-                .overlay {
-                    VStack(spacing: 10) {
+        HStack(spacing: 14) {
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(Color.black.opacity(0.72))
+
+                VStack(spacing: 0) {
+                    HStack {
+                        Image(systemName: "speaker.wave.2")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.85))
+
+                        Spacer()
+                    }
+                    .padding(.top, 18)
+                    .padding(.horizontal, 18)
+
+                    Spacer()
+
+                    VStack(spacing: 8) {
                         Image(systemName: "cursorarrow.motionlines")
-                            .font(.system(size: 28, weight: .medium))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 26, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.35))
 
                         Text("Trackpad")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.55))
 
                         Text("Drag to move • Tap to click")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.28))
                     }
+
+                    Spacer()
+
+                    HStack {
+                        Image(systemName: "scope")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.70))
+
+                        Spacer()
+                    }
+                    .padding(.bottom, 18)
+                    .padding(.horizontal, 18)
                 }
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { value in
-                            let dx = value.translation.width - lastTranslation.width
-                            let dy = value.translation.height - lastTranslation.height
+            }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        let dx = value.translation.width - lastTranslation.width
+                        let dy = value.translation.height - lastTranslation.height
 
-                            let multiplier: CGFloat = 1.6
+                        let multiplier: CGFloat = 1.6
 
-                            let moveX = Int(dx * multiplier)
-                            let moveY = Int(dy * multiplier)
+                        let moveX = Int(dx * multiplier)
+                        let moveY = Int(dy * multiplier)
 
-                            if moveX != 0 || moveY != 0 {
-                                viewModel.sendKey(.move(dx: moveX, dy: moveY))
-                            }
-
-                            lastTranslation = value.translation
+                        if moveX != 0 || moveY != 0 {
+                            viewModel.sendKey(.move(dx: moveX, dy: moveY))
                         }
-                        .onEnded { value in
-                            let distance = hypot(
-                                value.translation.width,
-                                value.translation.height
-                            )
 
-                            if distance < 8 {
-                                viewModel.sendKey(.click)
-                            }
+                        lastTranslation = value.translation
+                    }
+                    .onEnded { value in
+                        let distance = hypot(
+                            value.translation.width,
+                            value.translation.height
+                        )
 
-                            lastTranslation = .zero
+                        if distance < 8 {
+                            viewModel.sendKey(.click)
                         }
-                )
+
+                        lastTranslation = .zero
+                    }
+            )
 
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color(uiColor: .tertiarySystemFill))
-                .frame(width: 44)
+                .fill(Color.white.opacity(0.22))
+                .frame(width: 34)
                 .overlay {
                     VStack {
-                        Image(systemName: "chevron.up")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-
                         Spacer()
 
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.black.opacity(0.7))
-                            .frame(width: 24, height: 70)
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.black.opacity(0.85))
+                            .frame(width: 22, height: 92)
 
                         Spacer()
-
-                        Image(systemName: "chevron.down")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 14)
                 }
                 .contentShape(Rectangle())
                 .gesture(
@@ -280,7 +299,7 @@ struct TrackpadView: View {
                             let dy = value.translation.height - lastScrollTranslation
 
                             let scrollMultiplier: CGFloat = 6.0
-                            let scrollY = Int(-dy * scrollMultiplier)
+                            let scrollY = Int(dy * scrollMultiplier)
 
                             if scrollY != 0 {
                                 viewModel.sendKey(.scroll(dx: 0, dy: scrollY))
