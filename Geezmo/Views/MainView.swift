@@ -18,6 +18,9 @@ struct MainView: View {
                 VStack {
                     Spacer()
 
+                    TrackpadView(viewModel: viewModel)
+                        .padding(.bottom, 12)
+
                     if viewModel.preferencesAlternativeView {
                         if viewModel.colorButtonsPresented {
                             ButtonGroupColorAlternativeView()
