@@ -93,7 +93,19 @@ extension MainViewModel {
     func loadApps() {
         loadingAppsFinished = false
         apps.removeAll()
+    
         send(.listApps, id: Globals.SubscriptionIds.listAppsRequestId)
+    
+        let request = """
+        {
+            "id": "\(Globals.SubscriptionIds.listLaunchPointsRequestId)",
+            "type": "request",
+            "uri": "ssap://com.webos.applicationManager/listLaunchPoints",
+            "payload": {}
+        }
+        """
+    
+        send(jsonRequest: request)
     }
     
     func launchApp(id: String) {
