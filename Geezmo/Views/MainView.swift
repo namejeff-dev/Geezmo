@@ -19,6 +19,50 @@ struct MainView: View {
             ScrollView([], showsIndicators: false) {
                 VStack {
                     Spacer()
+                    let recentApps = viewModel.recentAppIds.compactMap { recentId in
+                        viewModel.apps.first { $0.id == recentId }
+                    }
+                    
+                    if !recentApps.isEmpty {
+                        HStack(spacing: 10) {
+                            ForEach(recentApps) { app in
+                                Button {
+                                    if let id = app.id {
+                                        viewModel.launchApp(id: id)
+                    
+                                        if viewModel.preferencesHapticFeedback {
+                                            UIImpactFeedbackGenerator(
+                                                style: .soft
+                                            ).impactOccurred()
+                                        }
+                                    }
+                                } label: {
+                                    VStack(spacing: 5) {
+                                        TVAppIconView(
+                                            app: app,
+                                            size: 44
+                                        )
+                    
+                                        Text(app.title ?? "App")
+                                            .font(
+                                                .system(
+                                                    size: 10,
+                                                    weight: .medium,
+                                                    design: .rounded
+                                                )
+                                            )
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.65)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                    }
 
                     Picker("", selection: $trackpadMode) {
                         Text("Remote").tag(false)
@@ -208,56 +252,10 @@ struct TrackpadView: View {
     @State private var lastHorizontalScrollTranslation: CGFloat = 0
     @State private var horizontalThumbOffset: CGFloat = 0
 
-    // Recently launched apps
-    private var recentApps: [WebOSResponseApplication] {
-        viewModel.recentAppIds.compactMap { recentId in
-            viewModel.apps.first { $0.id == recentId }
-        }
-    }
 
     var body: some View {
         VStack(spacing: 14) {
 
-            // MARK: Recent Apps
-            if !recentApps.isEmpty {
-                HStack(spacing: 10) {
-                    ForEach(recentApps) { app in
-                        Button {
-                            if let id = app.id {
-                                viewModel.launchApp(id: id)
-
-                                if viewModel.preferencesHapticFeedback {
-                                    UIImpactFeedbackGenerator(
-                                        style: .soft
-                                    ).impactOccurred()
-                                }
-                            }
-                        } label: {
-                            VStack(spacing: 5) {
-                                TVAppIconView(
-                                    app: app,
-                                    size: 44
-                                )
-
-                                Text(app.title ?? "App")
-                                    .font(
-                                        .system(
-                                            size: 10,
-                                            weight: .medium,
-                                            design: .rounded
-                                        )
-                                    )
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.65)
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, 4)
-            }
 
             // MARK: Trackpad + Vertical Scroll
             HStack(spacing: 12) {
