@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseAnalytics
+import WebOSClient
 
 struct MainView: View {
     @Environment(\.scenePhase) var scenePhase
