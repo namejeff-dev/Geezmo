@@ -53,27 +53,6 @@ struct MainView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    if viewModel.preferencesAlternativeView {
-                        if viewModel.colorButtonsPresented {
-                            ButtonGroupColorAlternativeView()
-                                .environmentObject(viewModel)
-                        } else {
-                            ButtonGroupDefaultAlternativeView()
-                                .environmentObject(viewModel)
-                        }
-                    } else {
-                        if viewModel.colorButtonsPresented {
-                            ButtonGroupColorView()
-                                .environmentObject(viewModel)
-                        } else {
-                            ButtonGroupDefaultView()
-                                .environmentObject(viewModel)
-                        }
-                    }
-
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .ignoresSafeArea(.keyboard)
             .background(Color(uiColor: .systemGray6))
