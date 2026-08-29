@@ -59,6 +59,7 @@ struct AccentButtonStyle: ButtonStyle {
         }
     }
 }
+
 final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
     @Published var image: UIImage?
 
@@ -73,21 +74,57 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
     func load(from urlString: String?) {
         guard
             let urlString,
-            let url = URL(string: urlString)
+            let originalURL = URL(string: urlString)
         else {
             return
         }
 
-        session.dataTask(with: url) { [weak self] data, _, _ in
+        loadURL(originalURL) { [weak self] success in
+            guard !success else {
+                return
+            }
+
             guard
+                var components = URLComponents(
+                    url: originalURL,
+                    resolvingAgainstBaseURL: false
+                )
+            else {
+                return
+            }
+
+            // LG TVs commonly expose the same resource service
+            // over plain HTTP on port 3000.
+            components.scheme = "http"
+            components.port = 3000
+
+            guard let fallbackURL = components.url else {
+                return
+            }
+
+            self?.loadURL(fallbackURL, completion: { _ in })
+        }
+    }
+
+    private func loadURL(
+        _ url: URL,
+        completion: @escaping (Bool) -> Void
+    ) {
+        session.dataTask(with: url) { [weak self] data, response, error in
+            guard
+                error == nil,
+                let httpResponse = response as? HTTPURLResponse,
+                (200...299).contains(httpResponse.statusCode),
                 let data,
                 let image = UIImage(data: data)
             else {
+                completion(false)
                 return
             }
 
             Task { @MainActor in
                 self?.image = image
+                completion(true)
             }
         }
         .resume()
@@ -109,10 +146,7 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
             challenge.protectionSpace.host ==
                 AppSettings.shared.host
         else {
-            completionHandler(
-                .performDefaultHandling,
-                nil
-            )
+            completionHandler(.performDefaultHandling, nil)
             return
         }
 
@@ -120,42 +154,5 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
             .useCredential,
             URLCredential(trust: serverTrust)
         )
-    }
-}
-struct TVAppIconView: View {
-    let app: WebOSResponseApplication
-    let size: CGFloat
-
-    @StateObject private var loader = TVAppIconLoader()
-
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: size * 0.22)
-                .fill(Color(uiColor: .systemGray5))
-
-            if let image = loader.image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .padding(size * 0.08)
-            } else {
-                Text(app.title?.toInitials() ?? "?")
-                    .font(
-                        .system(
-                            size: size * 0.30,
-                            weight: .bold,
-                            design: .rounded
-                        )
-                    )
-                    .foregroundStyle(.primary)
-            }
-        }
-        .frame(width: size, height: size)
-        .clipShape(
-            RoundedRectangle(cornerRadius: size * 0.22)
-        )
-        .onAppear {
-            loader.load(from: app.icon)
-        }
     }
 }
