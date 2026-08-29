@@ -37,6 +37,7 @@ struct AccentButtonStyle: ButtonStyle {
             TVAppIconView(
                 app: app,
                 size: (UIScreen.main.bounds.width - 200) / 3
+                viewModel: viewModel
             )
             .scaleEffect(configuration.isPressed ? 1.08 : 1.0)
             
@@ -156,6 +157,7 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
 struct TVAppIconView: View {
     let app: WebOSResponseApplication
     let size: CGFloat
+    @ObservedObject var viewModel: MainViewModel
 
     @StateObject private var loader = TVAppIconLoader()
 
@@ -186,7 +188,16 @@ struct TVAppIconView: View {
             RoundedRectangle(cornerRadius: size * 0.22)
         )
         .onAppear {
-            loader.load(from: app.icon)
+            guard
+                let appId = app.id,
+                let iconPath = viewModel.appIconPaths[appId]
+            else {
+                return
+            }
+
+            loader.load(
+                from: "http://\(AppSettings.shared.host ?? ""):3000\(iconPath)"
+            )
         }
     }
 }
