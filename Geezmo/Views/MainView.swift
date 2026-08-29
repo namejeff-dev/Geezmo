@@ -280,7 +280,7 @@ struct TrackpadView: View {
                             let dy = value.translation.height - lastScrollTranslation
 
                             let scrollMultiplier: CGFloat = 6.0
-                            let scrollY = Int(dy * scrollMultiplier)
+                            let scrollY = Int(-dy * scrollMultiplier)
 
                             if scrollY != 0 {
                                 viewModel.sendKey(.scroll(dx: 0, dy: scrollY))
