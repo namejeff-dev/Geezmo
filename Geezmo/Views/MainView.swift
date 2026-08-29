@@ -352,7 +352,8 @@ struct TrackpadView: View {
                     )
             }
             .frame(height: 280)
-
+            
+            // MARKL: Horizontal Scroll
             RoundedRectangle(cornerRadius: 18)
                 .fill(Color.white.opacity(0.18))
                 .frame(maxWidth: 260)
@@ -386,32 +387,30 @@ struct TrackpadView: View {
                             let dx =
                                 value.translation.width -
                                 lastHorizontalScrollTranslation
-            
-                            let sensitivity: CGFloat = 6
-            
-                            let scrollX =
-                                Int(dx * sensitivity)
-            
-                            if scrollX != 0 {
-                                viewModel.sendKey(
-                                    .scroll(dx: scrollX, dy: 0)
-                                )
+                
+                            let threshold: CGFloat = 25
+                
+                            if dx >= threshold {
+                                viewModel.sendKey(.right)
+                                lastHorizontalScrollTranslation =
+                                    value.translation.width
+                            } else if dx <= -threshold {
+                                viewModel.sendKey(.left)
+                                lastHorizontalScrollTranslation =
+                                    value.translation.width
                             }
-            
-                            lastHorizontalScrollTranslation =
-                                value.translation.width
-            
+                
                             horizontalThumbOffset = max(
-                                -100,
+                                -90,
                                 min(
-                                    100,
+                                    90,
                                     value.translation.width * 0.35
                                 )
                             )
                         }
                         .onEnded { _ in
                             lastHorizontalScrollTranslation = 0
-            
+                
                             withAnimation(
                                 .spring(
                                     response: 0.25,
