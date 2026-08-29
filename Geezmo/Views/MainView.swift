@@ -198,121 +198,215 @@ struct TrackpadView: View {
 
     @State private var lastTranslation: CGSize = .zero
     @State private var lastScrollTranslation: CGFloat = 0
+    @State private var scrollThumbOffset: CGFloat = 0
 
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(Color.black.opacity(0.72))
+        VStack(spacing: 18) {
+            HStack(spacing: 12) {
 
-                VStack(spacing: 0) {
-                    HStack {
-                        Image(systemName: "speaker.wave.2")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.85))
-
-                        Spacer()
-                    }
-                    .padding(.top, 18)
-                    .padding(.horizontal, 18)
-
-                    Spacer()
+                // MARK: Trackpad
+                ZStack {
+                    RoundedRectangle(cornerRadius: 28)
+                        .fill(Color.black.opacity(0.72))
 
                     VStack(spacing: 8) {
                         Image(systemName: "cursorarrow.motionlines")
-                            .font(.system(size: 26, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.35))
+                            .font(.system(size: 30, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.40))
 
                         Text("Trackpad")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(
+                                size: 18,
+                                weight: .semibold,
+                                design: .rounded
+                            ))
                             .foregroundStyle(.white.opacity(0.55))
 
                         Text("Drag to move • Tap to click")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.28))
+                            .font(.system(
+                                size: 12,
+                                weight: .medium,
+                                design: .rounded
+                            ))
+                            .foregroundStyle(.white.opacity(0.30))
                     }
-
-                    Spacer()
-
-                    HStack {
-                        Image(systemName: "scope")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.70))
-
-                        Spacer()
-                    }
-                    .padding(.bottom, 18)
-                    .padding(.horizontal, 18)
-                }
-            }
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        let dx = value.translation.width - lastTranslation.width
-                        let dy = value.translation.height - lastTranslation.height
-
-                        let multiplier: CGFloat = 1.6
-
-                        let moveX = Int(dx * multiplier)
-                        let moveY = Int(dy * multiplier)
-
-                        if moveX != 0 || moveY != 0 {
-                            viewModel.sendKey(.move(dx: moveX, dy: moveY))
-                        }
-
-                        lastTranslation = value.translation
-                    }
-                    .onEnded { value in
-                        let distance = hypot(
-                            value.translation.width,
-                            value.translation.height
-                        )
-
-                        if distance < 8 {
-                            viewModel.sendKey(.click)
-                        }
-
-                        lastTranslation = .zero
-                    }
-            )
-
-            RoundedRectangle(cornerRadius: 18)
-                .fill(Color.white.opacity(0.22))
-                .frame(width: 34)
-                .overlay {
-                    VStack {
-                        Spacer()
-
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.black.opacity(0.85))
-                            .frame(width: 22, height: 92)
-
-                        Spacer()
-                    }
-                    .padding(.vertical, 14)
                 }
                 .contentShape(Rectangle())
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { value in
-                            let dy = value.translation.height - lastScrollTranslation
+                            let dx =
+                                value.translation.width -
+                                lastTranslation.width
 
-                            let scrollMultiplier: CGFloat = 6.0
-                            let scrollY = Int(-dy * scrollMultiplier)
+                            let dy =
+                                value.translation.height -
+                                lastTranslation.height
 
-                            if scrollY != 0 {
-                                viewModel.sendKey(.scroll(dx: 0, dy: scrollY))
+                            let sensitivity: CGFloat = 1.6
+
+                            let moveX = Int(dx * sensitivity)
+                            let moveY = Int(dy * sensitivity)
+
+                            if moveX != 0 || moveY != 0 {
+                                viewModel.sendKey(
+                                    .move(dx: moveX, dy: moveY)
+                                )
                             }
 
-                            lastScrollTranslation = value.translation.height
+                            lastTranslation = value.translation
                         }
-                        .onEnded { _ in
-                            lastScrollTranslation = 0
+                        .onEnded { value in
+                            let distance = hypot(
+                                value.translation.width,
+                                value.translation.height
+                            )
+
+                            if distance < 8 {
+                                viewModel.sendKey(.click)
+
+                                if viewModel.preferencesHapticFeedback {
+                                    UIImpactFeedbackGenerator(
+                                        style: .light
+                                    ).impactOccurred()
+                                }
+                            }
+
+                            lastTranslation = .zero
                         }
                 )
+
+                // MARK: Scroll strip
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color.white.opacity(0.18))
+                    .frame(width: 38)
+                    .overlay {
+                        ZStack {
+                            VStack {
+                                Image(systemName: "chevron.up")
+                                    .font(.caption2)
+                                    .foregroundStyle(
+                                        .white.opacity(0.45)
+                                    )
+
+                                Spacer()
+
+                                Image(systemName: "chevron.down")
+                                    .font(.caption2)
+                                    .foregroundStyle(
+                                        .white.opacity(0.45)
+                                    )
+                            }
+                            .padding(.vertical, 12)
+
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.black.opacity(0.85))
+                                .frame(width: 24, height: 72)
+                                .offset(y: scrollThumbOffset)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                let dy =
+                                    value.translation.height -
+                                    lastScrollTranslation
+
+                                let sensitivity: CGFloat = 6
+
+                                let scrollY =
+                                    Int(dy * sensitivity)
+
+                                if scrollY != 0 {
+                                    viewModel.sendKey(
+                                        .scroll(dx: 0, dy: scrollY)
+                                    )
+                                }
+
+                                lastScrollTranslation =
+                                    value.translation.height
+
+                                scrollThumbOffset = max(
+                                    -70,
+                                    min(
+                                        70,
+                                        value.translation.height * 0.35
+                                    )
+                                )
+                            }
+                            .onEnded { _ in
+                                lastScrollTranslation = 0
+
+                                withAnimation(
+                                    .spring(
+                                        response: 0.25,
+                                        dampingFraction: 0.7
+                                    )
+                                ) {
+                                    scrollThumbOffset = 0
+                                }
+                            }
+                    )
+            }
+            .frame(height: 280)
+
+            // MARK: Bottom buttons
+            HStack(spacing: 16) {
+                trackpadButton(
+                    icon: "arrow.uturn.backward",
+                    action: {
+                        viewModel.sendKey(.back)
+                    }
+                )
+
+                trackpadButton(
+                    icon: "house.fill",
+                    action: {
+                        viewModel.sendKey(.home)
+                    }
+                )
+
+                trackpadButton(
+                    icon: "gearshape.fill",
+                    action: {
+                        viewModel.sendKey(.menu)
+                    }
+                )
+            }
         }
-        .frame(height: 260)
         .padding(.horizontal)
     }
+
+    private func trackpadButton(
+        icon: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            action()
+
+            if viewModel.preferencesHapticFeedback {
+                UIImpactFeedbackGenerator(
+                    style: .medium
+                ).impactOccurred()
+            }
+        } label: {
+            Image(systemName: icon)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(
+                    viewModel.isConnected
+                    ? Color.accentColor
+                    : Color.secondary
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 64)
+                .background(
+                    RoundedRectangle(cornerRadius: 22)
+                        .fill(Color.black.opacity(0.72))
+                )
+        }
+        .buttonStyle(.plain)
+        .disabled(!viewModel.isConnected)
+    }
+}
 }
