@@ -199,6 +199,8 @@ struct TrackpadView: View {
     @State private var lastTranslation: CGSize = .zero
     @State private var lastScrollTranslation: CGFloat = 0
     @State private var scrollThumbOffset: CGFloat = 0
+    @State private var lastHorizontalScrollTranslation: CGFloat = 0
+    @State private var horizontalThumbOffset: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 18) {
@@ -316,7 +318,7 @@ struct TrackpadView: View {
                                 let sensitivity: CGFloat = 6
 
                                 let scrollY =
-                                    Int(dy * sensitivity)
+                                    Int(-dy * sensitivity)
 
                                 if scrollY != 0 {
                                     viewModel.sendKey(
@@ -350,6 +352,76 @@ struct TrackpadView: View {
                     )
             }
             .frame(height: 280)
+
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white.opacity(0.18))
+                .frame(maxWidth: 260)
+                .frame(height: 38)
+                .frame(maxWidth: .infinity)
+                .overlay {
+                    ZStack {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                                .font(.caption2)
+                                .foregroundStyle(.white.opacity(0.45))
+            
+                            Spacer()
+            
+                            Image(systemName: "chevron.right")
+                                .font(.caption2)
+                                .foregroundStyle(.white.opacity(0.45))
+                        }
+                        .padding(.horizontal, 12)
+            
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.black.opacity(0.85))
+                            .frame(width: 72, height: 24)
+                            .offset(x: horizontalThumbOffset)
+                    }
+                }
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            let dx =
+                                value.translation.width -
+                                lastHorizontalScrollTranslation
+            
+                            let sensitivity: CGFloat = 6
+            
+                            let scrollX =
+                                Int(dx * sensitivity)
+            
+                            if scrollX != 0 {
+                                viewModel.sendKey(
+                                    .scroll(dx: scrollX, dy: 0)
+                                )
+                            }
+            
+                            lastHorizontalScrollTranslation =
+                                value.translation.width
+            
+                            horizontalThumbOffset = max(
+                                -100,
+                                min(
+                                    100,
+                                    value.translation.width * 0.35
+                                )
+                            )
+                        }
+                        .onEnded { _ in
+                            lastHorizontalScrollTranslation = 0
+            
+                            withAnimation(
+                                .spring(
+                                    response: 0.25,
+                                    dampingFraction: 0.7
+                                )
+                            ) {
+                                horizontalThumbOffset = 0
+                            }
+                        }
+                )
 
             // MARK: Bottom buttons
             HStack(spacing: 16) {
