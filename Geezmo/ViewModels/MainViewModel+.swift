@@ -155,6 +155,7 @@ extension MainViewModel {
     func setHostManually(host: String) {
         disconnect()
         AppSettings.shared.host = host
+        AppSettings.shared.mac = "04:70:56:08:25:48"
         AppSettings.shared.clientKey = nil
         preferencesPresented = false
         connectAndRegister(forcingConnection: true)
