@@ -6,6 +6,12 @@ struct TrackpadView: View {
 
     @State private var lastTranslation: CGSize = .zero
 
+    private var recentApps: [WebOSResponseApplication] {
+        viewModel.recentAppIds.compactMap { recentId in
+            viewModel.apps.first { $0.id == recentId }
+        }
+    }
+
     var body: some View {
         RoundedRectangle(cornerRadius: 24)
             .fill(Color(uiColor: .secondarySystemBackground))
