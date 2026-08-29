@@ -152,12 +152,32 @@ extension MainViewModel {
         }
     }
 
-    func setHostManually(host: String) {
+    func setHostManually(
+        host: String,
+        mac: String? = nil
+    ) {
         disconnect()
-        AppSettings.shared.host = host
-        AppSettings.shared.mac = "04:70:56:08:25:48"
+    
+        let cleanHost =
+            host.trimmingCharacters(in: .whitespacesAndNewlines)
+    
+        AppSettings.shared.host = cleanHost
+    
+        if let mac {
+            let cleanMac =
+                mac.trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+    
+            if !cleanMac.isEmpty {
+                AppSettings.shared.mac =
+                    cleanMac.uppercased()
+            }
+        }
+    
         AppSettings.shared.clientKey = nil
         preferencesPresented = false
+    
         connectAndRegister(forcingConnection: true)
     }
     
