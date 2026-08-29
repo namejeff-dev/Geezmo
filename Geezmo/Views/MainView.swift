@@ -40,7 +40,7 @@ struct MainView: View {
                                     VStack(spacing: 5) {
                                         TVAppIconView(
                                             app: app,
-                                            size: 44
+                                            size: 44,
                                             viewModel: viewModel
                                         )
                     
