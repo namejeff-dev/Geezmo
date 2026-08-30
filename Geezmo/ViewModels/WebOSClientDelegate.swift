@@ -92,42 +92,33 @@ extension MainViewModel: WebOSClientDelegate {
             }
         }
     }
-
-    func didReceive(jsonResponse: String) {
-        guard
-            let data = jsonResponse.data(using: .utf8),
-            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-            let id = json["id"] as? String,
-            id == Globals.SubscriptionIds.listLaunchPointsRequestId,
-            let launchPoints = json["launchPoints"] as? [[String: Any]]
-        else {
-            return
-        }
-    
-        var icons: [String: String] = [:]
-    
-        for launchPoint in launchPoints {
-            guard
-                let appId = launchPoint["id"] as? String,
-                let icon = launchPoint["icon"] as? String,
-                !icon.isEmpty
-            else {
-                continue
-            }
-    
-            icons[appId] = icon
-        }
-    
-        Task { @MainActor in
-            self.appIconPaths = icons
-        }
+func didReceive(jsonResponse: String) {
+    guard
+        let data = jsonResponse.data(using: .utf8),
+        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        let id = json["id"] as? String,
+        id == Globals.SubscriptionIds.listLaunchPointsRequestId,
+        let payload = json["payload"] as? [String: Any],
+        let launchPoints = payload["launchPoints"] as? [[String: Any]]
+    else {
+        return
     }
 
-    func didReceiveNetworkError(_ error: Error?) {
-        if let error = error as NSError? {
-            if error.code == 57 || error.code == 60 || error.code == 54 {
-                disconnect()
-            }
+    var icons: [String: String] = [:]
+
+    for launchPoint in launchPoints {
+        guard
+            let appId = launchPoint["id"] as? String,
+            let icon = launchPoint["icon"] as? String,
+            !icon.isEmpty
+        else {
+            continue
         }
+
+        icons[appId] = icon
+    }
+
+    Task { @MainActor in
+        self.appIconPaths = icons
     }
 }
