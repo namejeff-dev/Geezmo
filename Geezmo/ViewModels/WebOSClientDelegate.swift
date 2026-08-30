@@ -92,6 +92,7 @@ extension MainViewModel: WebOSClientDelegate {
             }
         }
     }
+
 func didReceive(jsonResponse: String) {
     guard
         let data = jsonResponse.data(using: .utf8),
@@ -120,6 +121,14 @@ func didReceive(jsonResponse: String) {
 
     Task { @MainActor in
         self.appIconPaths = icons
+    }
+}
+
+func didReceiveNetworkError(_ error: Error?) {
+    if let error = error as NSError? {
+        if error.code == 57 || error.code == 60 || error.code == 54 {
+            disconnect()
+        }
     }
 }
 }
