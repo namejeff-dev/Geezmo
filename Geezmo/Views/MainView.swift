@@ -44,8 +44,11 @@ struct MainView: View {
                                         KeyButtonRow {
                                             KeyButton(.volumeDown)
                                             KeyButton(.volumeUp)
-                                            KeyButton(.channelUpAlternative)
+                                        }
+                        
+                                        KeyButtonRow {
                                             KeyButton(.channelDownAlternative)
+                                            KeyButton(.channelUpAlternative)
                                         }
                                     }
                                     .environmentObject(viewModel)
@@ -57,9 +60,31 @@ struct MainView: View {
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .overlay {
-                                Text("Playback")
-                                    .font(.headline)
-                                    .foregroundStyle(.secondary)
+                                VStack(spacing: 10) {
+                                    HStack {
+                                        Text("Playback")
+                                            .font(.headline)
+                                            .foregroundStyle(.secondary)
+                        
+                                        Spacer()
+                                    }
+                        
+                                    KeyButtonGroup {
+                                        KeyButtonRow {
+                                            KeyButton(.rewind)
+                                            KeyButton(.playPause)
+                                            KeyButton(.fastForward)
+                                        }
+                        
+                                        KeyButtonRow {
+                                            KeyButton(.backAlternative)
+                                            KeyButton(.homeAlternative)
+                                            KeyButton(.settings)
+                                        }
+                                    }
+                                    .environmentObject(viewModel)
+                                }
+                                .padding()
                             }
                             .tag(1)
                     
