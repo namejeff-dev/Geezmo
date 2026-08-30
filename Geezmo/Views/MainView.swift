@@ -21,135 +21,137 @@ struct MainView: View {
                 VStack {
                     Spacer()
                     
-                    TabView(selection: $topPage) {
-                        RoundedRectangle(cornerRadius: 28)
-                            .fill(Color(uiColor: .secondarySystemBackground))
-                            .overlay {
-                                KeyButtonGroup {
-                                    KeyButtonRow {
-                                        KeyButton(.powerOff)
-                                        KeyButton(.mute)
-                                        KeyButton(.screenOff)
-                                    }
-                            
-                                    KeyButtonRow {
-                                        KeyButton(.channelDownAlternative)
-                                        KeyButton(.volumeDown)
-                                        KeyButton(.volumeUp)
-                                        KeyButton(.channelUpAlternative)
-                                    }
-                                }
-                                .environmentObject(viewModel)
-                                .padding(.horizontal)
-                                .padding(.top, 4)
-                                .padding(.bottom, 28)
-                            }
-                            .tag(0)
-                    
-                        RoundedRectangle(cornerRadius: 28)
-                            .fill(Color(uiColor: .secondarySystemBackground))
-                            .overlay {
-                                KeyButtonGroup {
-                                    KeyButtonRow {
-                                        KeyButton(.volumeDown)
-                                        KeyButton(.mute)
-                                        KeyButton(.volumeUp)
-                                    }
-                            
-                                    KeyButtonRow {
-                                        KeyButton(.rewind)
-                                        KeyButton(.playPause)
-                                        KeyButton(.fastForward)
-                                    }
-                                }
-                                .environmentObject(viewModel)
-                                .padding(.horizontal)
-                                .padding(.top, 4)
-                                .padding(.bottom, 28)
-                            }
-                            .tag(1)
-
-                        RoundedRectangle(cornerRadius: 28)
-                            .fill(Color(uiColor: .secondarySystemBackground))
-                            .overlay {
-                                VStack(spacing: 8) {
-                                    HStack {
-                                        Spacer()
-                                        KeyButton(.up)
-                                        Spacer()
-                                    }
-                                
-                                    HStack(spacing: 8) {
-                                        KeyButton(.left)
-                                        KeyButton(.ok)
-                                        KeyButton(.right)
-                                    }
-                                
-                                    HStack {
-                                        Spacer()
-                                        KeyButton(.down)
-                                        Spacer()
-                                    }
-                                }
-                                .environmentObject(viewModel)
-                                .padding(.horizontal)
-                                .padding(.top, 4)
-                                .padding(.bottom, 28)
-                            }
-                            .tag(2)
-                    
-                        RoundedRectangle(cornerRadius: 28)
-                            .fill(Color(uiColor: .secondarySystemBackground))
-                            .overlay {
-                                VStack(spacing: 12) {
-                                    Text("Recent Apps")
-                                        .font(.headline)
-                                        .foregroundStyle(.secondary)
-                        
-                                    let recentApps = viewModel.recentAppIds.compactMap { recentId in
-                                        viewModel.apps.first { $0.id == recentId }
-                                    }
-                        
-                                    if recentApps.isEmpty {
-                                        Text("Launch apps from the Apps menu to populate this row.")
-                                            .font(.caption)
-                                            .foregroundStyle(.tertiary)
-                                            .multilineTextAlignment(.center)
-                                            .padding(.horizontal)
-                                    } else {
-                                        HStack(spacing: 16) {
-                                            ForEach(recentApps) { app in
-                                                Button {
-                                                    if let id = app.id {
-                                                        viewModel.launchApp(id: id)
-                        
-                                                        if viewModel.preferencesHapticFeedback {
-                                                            UIImpactFeedbackGenerator(
-                                                                style: .soft
-                                                            ).impactOccurred()
-                                                        }
-                                                    }
-                                                } label: {
-                                                    TVAppIconView(
-                                                        app: app,
-                                                        size: 56,
-                                                        viewModel: viewModel
-                                                    )
-                                                }
-                                                .buttonStyle(.plain)
-                                                .frame(maxWidth: .infinity)
-                                            }
+                    if trackpadMode {
+                        TabView(selection: $topPage) {
+                            RoundedRectangle(cornerRadius: 28)
+                                .fill(Color(uiColor: .secondarySystemBackground))
+                                .overlay {
+                                    KeyButtonGroup {
+                                        KeyButtonRow {
+                                            KeyButton(.powerOff)
+                                            KeyButton(.mute)
+                                            KeyButton(.screenOff)
                                         }
-                                        .padding(.horizontal)
+                                
+                                        KeyButtonRow {
+                                            KeyButton(.channelDownAlternative)
+                                            KeyButton(.volumeDown)
+                                            KeyButton(.volumeUp)
+                                            KeyButton(.channelUpAlternative)
+                                        }
                                     }
+                                    .environmentObject(viewModel)
+                                    .padding(.horizontal)
+                                    .padding(.top, 4)
+                                    .padding(.bottom, 28)
                                 }
-                                .padding()
-                            }
-                            .tag(3)
+                                .tag(0)
+                        
+                            RoundedRectangle(cornerRadius: 28)
+                                .fill(Color(uiColor: .secondarySystemBackground))
+                                .overlay {
+                                    KeyButtonGroup {
+                                        KeyButtonRow {
+                                            KeyButton(.volumeDown)
+                                            KeyButton(.mute)
+                                            KeyButton(.volumeUp)
+                                        }
+                                
+                                        KeyButtonRow {
+                                            KeyButton(.rewind)
+                                            KeyButton(.playPause)
+                                            KeyButton(.fastForward)
+                                        }
+                                    }
+                                    .environmentObject(viewModel)
+                                    .padding(.horizontal)
+                                    .padding(.top, 4)
+                                    .padding(.bottom, 28)
+                                }
+                                .tag(1)
+    
+                            RoundedRectangle(cornerRadius: 28)
+                                .fill(Color(uiColor: .secondarySystemBackground))
+                                .overlay {
+                                    VStack(spacing: 8) {
+                                        HStack {
+                                            Spacer()
+                                            KeyButton(.up)
+                                            Spacer()
+                                        }
+                                    
+                                        HStack(spacing: 8) {
+                                            KeyButton(.left)
+                                            KeyButton(.ok)
+                                            KeyButton(.right)
+                                        }
+                                    
+                                        HStack {
+                                            Spacer()
+                                            KeyButton(.down)
+                                            Spacer()
+                                        }
+                                    }
+                                    .environmentObject(viewModel)
+                                    .padding(.horizontal)
+                                    .padding(.top, 4)
+                                    .padding(.bottom, 28)
+                                }
+                                .tag(2)
+                        
+                            RoundedRectangle(cornerRadius: 28)
+                                .fill(Color(uiColor: .secondarySystemBackground))
+                                .overlay {
+                                    VStack(spacing: 12) {
+                                        Text("Recent Apps")
+                                            .font(.headline)
+                                            .foregroundStyle(.secondary)
+                            
+                                        let recentApps = viewModel.recentAppIds.compactMap { recentId in
+                                            viewModel.apps.first { $0.id == recentId }
+                                        }
+                            
+                                        if recentApps.isEmpty {
+                                            Text("Launch apps from the Apps menu to populate this row.")
+                                                .font(.caption)
+                                                .foregroundStyle(.tertiary)
+                                                .multilineTextAlignment(.center)
+                                                .padding(.horizontal)
+                                        } else {
+                                            HStack(spacing: 16) {
+                                                ForEach(recentApps) { app in
+                                                    Button {
+                                                        if let id = app.id {
+                                                            viewModel.launchApp(id: id)
+                            
+                                                            if viewModel.preferencesHapticFeedback {
+                                                                UIImpactFeedbackGenerator(
+                                                                    style: .soft
+                                                                ).impactOccurred()
+                                                            }
+                                                        }
+                                                    } label: {
+                                                        TVAppIconView(
+                                                            app: app,
+                                                            size: 56,
+                                                            viewModel: viewModel
+                                                        )
+                                                    }
+                                                    .buttonStyle(.plain)
+                                                    .frame(maxWidth: .infinity)
+                                                }
+                                            }
+                                            .padding(.horizontal)
+                                        }
+                                    }
+                                    .padding()
+                                }
+                                .tag(3)
+                        }
+                        .tabViewStyle(.page(indexDisplayMode: .always))
+                        .frame(height: 205)
+                        .padding(.horizontal)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .always))
-                    .frame(height: 205)
-                    .padding(.horizontal)
 
                     VStack(spacing: 12) {
                         Picker("", selection: $trackpadMode) {
