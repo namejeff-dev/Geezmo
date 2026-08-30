@@ -24,45 +24,44 @@ struct MainView: View {
                     }
                     
                     if !recentApps.isEmpty {
-                        HStack(spacing: 10) {
-                            ForEach(recentApps) { app in
-                                Button {
-                                    if let id = app.id {
-                                        viewModel.launchApp(id: id)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Recent")
+                                .font(
+                                    .system(
+                                        size: 12,
+                                        weight: .semibold,
+                                        design: .rounded
+                                    )
+                                )
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 4)
                     
-                                        if viewModel.preferencesHapticFeedback {
-                                            UIImpactFeedbackGenerator(
-                                                style: .soft
-                                            ).impactOccurred()
+                            HStack(spacing: 16) {
+                                ForEach(recentApps) { app in
+                                    Button {
+                                        if let id = app.id {
+                                            viewModel.launchApp(id: id)
+                    
+                                            if viewModel.preferencesHapticFeedback {
+                                                UIImpactFeedbackGenerator(
+                                                    style: .soft
+                                                ).impactOccurred()
+                                            }
                                         }
-                                    }
-                                } label: {
-                                    VStack(spacing: 5) {
+                                    } label: {
                                         TVAppIconView(
                                             app: app,
-                                            size: 44,
+                                            size: 56,
                                             viewModel: viewModel
                                         )
-                    
-                                        Text(app.title ?? "App")
-                                            .font(
-                                                .system(
-                                                    size: 10,
-                                                    weight: .medium,
-                                                    design: .rounded
-                                                )
-                                            )
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.65)
                                     }
+                                    .buttonStyle(.plain)
                                     .frame(maxWidth: .infinity)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                         .padding(.horizontal)
-                        .padding(.bottom, 8)
+                        .padding(.bottom, 10)
                     }
 
                     Picker("", selection: $trackpadMode) {
