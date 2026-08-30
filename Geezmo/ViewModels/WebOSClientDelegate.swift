@@ -98,7 +98,24 @@ func didReceive(jsonResponse: String) {
         let data = jsonResponse.data(using: .utf8),
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
         let id = json["id"] as? String,
-        id == Globals.SubscriptionIds.listLaunchPointsRequestId,
+        id == Globals.SubscriptionIds.listLaunchPointsRequestId
+    else {
+        return
+    }
+
+    // Temporarily show exactly what the TV returned
+    Task { @MainActor in
+        alert(
+            AlertConfiguration(
+                title: "LaunchPoints Debug",
+                message: String(jsonResponse.prefix(1500)),
+                primaryButton: .default(Text("OK")),
+                secondaryButton: nil
+            )
+        )
+    }
+
+    guard
         let payload = json["payload"] as? [String: Any],
         let launchPoints = payload["launchPoints"] as? [[String: Any]]
     else {
