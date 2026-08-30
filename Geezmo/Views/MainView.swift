@@ -68,6 +68,35 @@ struct MainView: View {
                                 .padding(.bottom, 28)
                             }
                             .tag(1)
+
+                        RoundedRectangle(cornerRadius: 28)
+                            .fill(Color(uiColor: .secondarySystemBackground))
+                            .overlay {
+                                KeyButtonGroup {
+                                    KeyButtonRow {
+                                        KeyButton(.none)
+                                        KeyButton(.up)
+                                        KeyButton(.none)
+                                    }
+                                
+                                    KeyButtonRow {
+                                        KeyButton(.left)
+                                        KeyButton(.ok)
+                                        KeyButton(.right)
+                                    }
+                                
+                                    KeyButtonRow {
+                                        KeyButton(.none)
+                                        KeyButton(.down)
+                                        KeyButton(.none)
+                                    }
+                                }
+                                .environmentObject(viewModel)
+                                .padding(.horizontal)
+                                .padding(.top, 4)
+                                .padding(.bottom, 28)
+                            }
+                            .tag(2)
                     
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color(uiColor: .secondarySystemBackground))
@@ -116,7 +145,7 @@ struct MainView: View {
                                 }
                                 .padding()
                             }
-                            .tag(2)
+                            .tag(3)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .always))
                     .frame(height: 190)
