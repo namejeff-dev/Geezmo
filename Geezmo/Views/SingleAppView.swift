@@ -61,6 +61,22 @@ struct AccentButtonStyle: ButtonStyle {
     }
 }
 
+final class TVAppIconCache {
+    static let shared = TVAppIconCache()
+
+    private let cache = NSCache<NSString, UIImage>()
+
+    private init() {}
+
+    func image(for key: String) -> UIImage? {
+        cache.object(forKey: key as NSString)
+    }
+
+    func set(_ image: UIImage, for key: String) {
+        cache.setObject(image, forKey: key as NSString)
+    }
+}
+
 final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
     @Published var image: UIImage?
 
@@ -78,6 +94,13 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
             let originalURL = URL(string: urlString)
         else {
             return
+        }
+
+        if let cached = TVAppIconCache.shared.image(for: urlString) {
+        Task { @MainActor in
+            self.image = cached
+        }
+        return
         }
 
         loadURL(originalURL) { [weak self] success in
@@ -122,6 +145,10 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
             }
 
             Task { @MainActor in
+                TVAppIconCache.shared.set(
+                    image,
+                    for: url.absoluteString
+                )
                 self?.image = image
                 completion(true)
             }
