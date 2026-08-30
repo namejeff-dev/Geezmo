@@ -122,3 +122,4 @@ func didReceive(jsonResponse: String) {
         self.appIconPaths = icons
     }
 }
+}
