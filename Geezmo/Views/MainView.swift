@@ -12,7 +12,7 @@ import WebOSClient
 struct MainView: View {
     @Environment(\.scenePhase) var scenePhase
     @ObservedObject var viewModel: MainViewModel
-    @State private var trackpadMode = false
+    @State private var trackpadMode = true
     @State private var topPage = 0
 
     var body: some View {
@@ -43,60 +43,55 @@ struct MainView: View {
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .overlay {
-                                Text("Apps")
-                                    .font(.headline)
-                                    .foregroundStyle(.secondary)
+                                VStack(spacing: 12) {
+                                    Text("Recent Apps")
+                                        .font(.headline)
+                                        .foregroundStyle(.secondary)
+                        
+                                    let recentApps = viewModel.recentAppIds.compactMap { recentId in
+                                        viewModel.apps.first { $0.id == recentId }
+                                    }
+                        
+                                    if recentApps.isEmpty {
+                                        Text("Launch apps from the Apps menu to populate this row.")
+                                            .font(.caption)
+                                            .foregroundStyle(.tertiary)
+                                            .multilineTextAlignment(.center)
+                                            .padding(.horizontal)
+                                    } else {
+                                        HStack(spacing: 16) {
+                                            ForEach(recentApps) { app in
+                                                Button {
+                                                    if let id = app.id {
+                                                        viewModel.launchApp(id: id)
+                        
+                                                        if viewModel.preferencesHapticFeedback {
+                                                            UIImpactFeedbackGenerator(
+                                                                style: .soft
+                                                            ).impactOccurred()
+                                                        }
+                                                    }
+                                                } label: {
+                                                    TVAppIconView(
+                                                        app: app,
+                                                        size: 56,
+                                                        viewModel: viewModel
+                                                    )
+                                                }
+                                                .buttonStyle(.plain)
+                                                .frame(maxWidth: .infinity)
+                                            }
+                                        }
+                                        .padding(.horizontal)
+                                    }
+                                }
+                                .padding()
                             }
                             .tag(2)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .always))
                     .frame(height: 170)
                     .padding(.horizontal)
-                    
-                    let recentApps = viewModel.recentAppIds.compactMap { recentId in
-                        viewModel.apps.first { $0.id == recentId }
-                    }
-                    
-                    if !recentApps.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Recent")
-                                .font(
-                                    .system(
-                                        size: 12,
-                                        weight: .semibold,
-                                        design: .rounded
-                                    )
-                                )
-                                .foregroundStyle(.secondary)
-                                .padding(.leading, 4)
-                    
-                            HStack(spacing: 16) {
-                                ForEach(recentApps) { app in
-                                    Button {
-                                        if let id = app.id {
-                                            viewModel.launchApp(id: id)
-                    
-                                            if viewModel.preferencesHapticFeedback {
-                                                UIImpactFeedbackGenerator(
-                                                    style: .soft
-                                                ).impactOccurred()
-                                            }
-                                        }
-                                    } label: {
-                                        TVAppIconView(
-                                            app: app,
-                                            size: 56,
-                                            viewModel: viewModel
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                    .frame(maxWidth: .infinity)
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.bottom, 10)
-                    }
 
                     Picker("", selection: $trackpadMode) {
                         Text("Remote").tag(false)
