@@ -40,12 +40,12 @@ struct MainView: View {
                                             KeyButton(.mute)
                                             KeyButton(.screenOff)
                                         }
-                        
+                                    
                                         KeyButtonRow {
                                             KeyButton(.volumeDown)
                                             KeyButton(.volumeUp)
                                         }
-                        
+                                    
                                         KeyButtonRow {
                                             KeyButton(.channelDownAlternative)
                                             KeyButton(.channelUpAlternative)
@@ -74,12 +74,6 @@ struct MainView: View {
                                             KeyButton(.rewind)
                                             KeyButton(.playPause)
                                             KeyButton(.fastForward)
-                                        }
-                        
-                                        KeyButtonRow {
-                                            KeyButton(.backAlternative)
-                                            KeyButton(.homeAlternative)
-                                            KeyButton(.settings)
                                         }
                                     }
                                     .environmentObject(viewModel)
