@@ -25,31 +25,21 @@ struct MainView: View {
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .overlay {
-                                VStack(spacing: 10) {
-                                    HStack {
-                                        Text("Controls")
-                                            .font(.headline)
-                                            .foregroundStyle(.secondary)
-                        
-                                        Spacer()
+                                KeyButtonGroup {
+                                    KeyButtonRow {
+                                        KeyButton(.powerOff)
+                                        KeyButton(.mute)
+                                        KeyButton(.screenOff)
                                     }
-                        
-                                    KeyButtonGroup {
-                                        KeyButtonRow {
-                                            KeyButton(.powerOff)
-                                            KeyButton(.mute)
-                                            KeyButton(.screenOff)
-                                        }
-                                    
-                                        KeyButtonRow {
-                                            KeyButton(.channelDownAlternative)
-                                            KeyButton(.volumeDown)
-                                            KeyButton(.volumeUp)
-                                            KeyButton(.channelUpAlternative)
-                                        }
+                            
+                                    KeyButtonRow {
+                                        KeyButton(.channelDownAlternative)
+                                        KeyButton(.volumeDown)
+                                        KeyButton(.volumeUp)
+                                        KeyButton(.channelUpAlternative)
                                     }
-                                    .environmentObject(viewModel)
                                 }
+                                .environmentObject(viewModel)
                                 .padding()
                             }
                             .tag(0)
@@ -57,30 +47,20 @@ struct MainView: View {
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .overlay {
-                                VStack(spacing: 10) {
-                                    HStack {
-                                        Text("Playback")
-                                            .font(.headline)
-                                            .foregroundStyle(.secondary)
-                        
-                                        Spacer()
+                                KeyButtonGroup {
+                                    KeyButtonRow {
+                                        KeyButton(.volumeDown)
+                                        KeyButton(.mute)
+                                        KeyButton(.volumeUp)
                                     }
-                        
-                                    KeyButtonGroup {
-                                        KeyButtonRow {
-                                            KeyButton(.volumeDown)
-                                            KeyButton(.mute)
-                                            KeyButton(.volumeUp)
-                                        }
-                                        
-                                        KeyButtonRow {
-                                            KeyButton(.rewind)
-                                            KeyButton(.playPause)
-                                            KeyButton(.fastForward)
-                                        }
+                            
+                                    KeyButtonRow {
+                                        KeyButton(.rewind)
+                                        KeyButton(.playPause)
+                                        KeyButton(.fastForward)
                                     }
-                                    .environmentObject(viewModel)
                                 }
+                                .environmentObject(viewModel)
                                 .padding()
                             }
                             .tag(1)
