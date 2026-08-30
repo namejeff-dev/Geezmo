@@ -40,7 +40,9 @@ struct MainView: View {
                                     }
                                 }
                                 .environmentObject(viewModel)
-                                .padding()
+                                .padding(.horizontal)
+                                .padding(.top, 4)
+                                .padding(.bottom, 28)
                             }
                             .tag(0)
                     
@@ -61,7 +63,9 @@ struct MainView: View {
                                     }
                                 }
                                 .environmentObject(viewModel)
-                                .padding()
+                                .padding(.horizontal)
+                                .padding(.top, 4)
+                                .padding(.bottom, 28)
                             }
                             .tag(1)
                     
@@ -115,7 +119,7 @@ struct MainView: View {
                             .tag(2)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .always))
-                    .frame(height: 170)
+                    .frame(height: 190)
                     .padding(.horizontal)
 
                     Picker("", selection: $trackpadMode) {
