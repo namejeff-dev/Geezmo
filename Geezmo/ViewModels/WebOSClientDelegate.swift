@@ -103,18 +103,6 @@ func didReceive(jsonResponse: String) {
         return
     }
 
-    // Temporarily show exactly what the TV returned
-    Task { @MainActor in
-        alert(
-            AlertConfiguration(
-                title: "LaunchPoints Debug",
-                message: String(jsonResponse.prefix(1500)),
-                primaryButton: .default(Text("OK")),
-                secondaryButton: nil
-            )
-        )
-    }
-
     guard
         let payload = json["payload"] as? [String: Any],
         let launchPoints = payload["launchPoints"] as? [[String: Any]]
