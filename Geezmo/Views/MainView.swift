@@ -657,3 +657,4 @@ struct TrackpadView: View {
         .disabled(!viewModel.isConnected)
     }
 }
+}
