@@ -25,9 +25,32 @@ struct MainView: View {
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .overlay {
-                                Text("Controls")
-                                    .font(.headline)
-                                    .foregroundStyle(.secondary)
+                                VStack(spacing: 10) {
+                                    HStack {
+                                        Text("Controls")
+                                            .font(.headline)
+                                            .foregroundStyle(.secondary)
+                        
+                                        Spacer()
+                                    }
+                        
+                                    KeyButtonGroup {
+                                        KeyButtonRow {
+                                            KeyButton(.powerOff)
+                                            KeyButton(.mute)
+                                            KeyButton(.screenOff)
+                                        }
+                        
+                                        KeyButtonRow {
+                                            KeyButton(.volumeDown)
+                                            KeyButton(.volumeUp)
+                                            KeyButton(.channelUpAlternative)
+                                            KeyButton(.channelDownAlternative)
+                                        }
+                                    }
+                                    .environmentObject(viewModel)
+                                }
+                                .padding()
                             }
                             .tag(0)
                     
