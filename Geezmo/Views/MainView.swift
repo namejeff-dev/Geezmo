@@ -42,12 +42,9 @@ struct MainView: View {
                                         }
                                     
                                         KeyButtonRow {
+                                            KeyButton(.channelDownAlternative)
                                             KeyButton(.volumeDown)
                                             KeyButton(.volumeUp)
-                                        }
-                                    
-                                        KeyButtonRow {
-                                            KeyButton(.channelDownAlternative)
                                             KeyButton(.channelUpAlternative)
                                         }
                                     }
@@ -70,6 +67,12 @@ struct MainView: View {
                                     }
                         
                                     KeyButtonGroup {
+                                        KeyButtonRow {
+                                            KeyButton(.volumeDown)
+                                            KeyButton(.mute)
+                                            KeyButton(.volumeUp)
+                                        }
+                                        
                                         KeyButtonRow {
                                             KeyButton(.rewind)
                                             KeyButton(.playPause)
