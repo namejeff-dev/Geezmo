@@ -13,12 +13,46 @@ struct MainView: View {
     @Environment(\.scenePhase) var scenePhase
     @ObservedObject var viewModel: MainViewModel
     @State private var trackpadMode = false
+    @State private var topPage = 0
 
     var body: some View {
         NavigationStack {
             ScrollView([], showsIndicators: false) {
                 VStack {
                     Spacer()
+                    
+                    TabView(selection: $topPage) {
+                        RoundedRectangle(cornerRadius: 28)
+                            .fill(Color(uiColor: .secondarySystemBackground))
+                            .overlay {
+                                Text("Controls")
+                                    .font(.headline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(0)
+                    
+                        RoundedRectangle(cornerRadius: 28)
+                            .fill(Color(uiColor: .secondarySystemBackground))
+                            .overlay {
+                                Text("Playback")
+                                    .font(.headline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(1)
+                    
+                        RoundedRectangle(cornerRadius: 28)
+                            .fill(Color(uiColor: .secondarySystemBackground))
+                            .overlay {
+                                Text("Apps")
+                                    .font(.headline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(2)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .always))
+                    .frame(height: 170)
+                    .padding(.horizontal)
+                    
                     let recentApps = viewModel.recentAppIds.compactMap { recentId in
                         viewModel.apps.first { $0.id == recentId }
                     }
