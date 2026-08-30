@@ -77,6 +77,14 @@ final class TVAppIconCache {
     }
 }
 
+final class TVAppIconDownloadLimiter {
+    static let shared = TVAppIconDownloadLimiter()
+
+    let semaphore = DispatchSemaphore(value: 4)
+
+    private init() {}
+}
+
 final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
     @Published var image: UIImage?
 
@@ -128,11 +136,18 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
         }
     }
 
-    private func loadURL(
-        _ url: URL,
-        completion: @escaping (Bool) -> Void
-    ) {
-        session.dataTask(with: url) { [weak self] data, response, error in
+private func loadURL(
+    _ url: URL,
+    completion: @escaping (Bool) -> Void
+) {
+    DispatchQueue.global(qos: .utility).async {
+        TVAppIconDownloadLimiter.shared.semaphore.wait()
+
+        self.session.dataTask(with: url) { [weak self] data, response, error in
+            defer {
+                TVAppIconDownloadLimiter.shared.semaphore.signal()
+            }
+
             guard
                 error == nil,
                 let httpResponse = response as? HTTPURLResponse,
@@ -149,12 +164,14 @@ final class TVAppIconLoader: NSObject, ObservableObject, URLSessionDelegate {
                     image,
                     for: url.absoluteString
                 )
+
                 self?.image = image
                 completion(true)
             }
         }
         .resume()
     }
+}
 
     func urlSession(
         _ session: URLSession,
