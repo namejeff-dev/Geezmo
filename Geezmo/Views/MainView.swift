@@ -72,23 +72,23 @@ struct MainView: View {
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .overlay {
-                                KeyButtonGroup {
-                                    KeyButtonRow {
-                                        KeyButton(.none)
+                                VStack(spacing: 8) {
+                                    HStack {
+                                        Spacer()
                                         KeyButton(.up)
-                                        KeyButton(.none)
+                                        Spacer()
                                     }
                                 
-                                    KeyButtonRow {
+                                    HStack(spacing: 8) {
                                         KeyButton(.left)
                                         KeyButton(.ok)
                                         KeyButton(.right)
                                     }
                                 
-                                    KeyButtonRow {
-                                        KeyButton(.none)
+                                    HStack {
+                                        Spacer()
                                         KeyButton(.down)
-                                        KeyButton(.none)
+                                        Spacer()
                                     }
                                 }
                                 .environmentObject(viewModel)
@@ -148,16 +148,17 @@ struct MainView: View {
                             .tag(3)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .always))
-                    .frame(height: 190)
+                    .frame(height: 205)
                     .padding(.horizontal)
 
-                    Picker("", selection: $trackpadMode) {
-                        Text("Remote").tag(false)
-                        Text("Trackpad").tag(true)
-                    }
+                    VStack(spacing: 12) {
+                        Picker("", selection: $trackpadMode) {
+                            Text("Remote").tag(false)
+                            Text("Trackpad").tag(true)
+                        }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 20)
                 
                     if trackpadMode {
                         TrackpadView(viewModel: viewModel)
