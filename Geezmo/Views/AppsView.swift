@@ -13,9 +13,7 @@ import FirebaseAnalytics
 struct AppsView: View {
     @ObservedObject var viewModel: MainViewModel
     @State private var animateSymbol: Bool = false
-    @State private var searchText = ""
-    @State private var iconURLText = ""
-    @State private var iconURLShown = false
+    @State private var searchText = "
 
     
     var filteredApps: [WebOSResponseApplication] {
@@ -103,18 +101,6 @@ struct AppsView: View {
                     AnalyticsEvents.AppsView.appsViewStarted.rawValue,
                     parameters: nil
                 )
-            
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    if let icon = viewModel.apps.first?.icon {
-                        iconURLText = icon
-                        iconURLShown = true
-                    }
-                }
-            }
-            .alert("Icon URL", isPresented: $iconURLShown) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(iconURLText)
             }
         }
     }
